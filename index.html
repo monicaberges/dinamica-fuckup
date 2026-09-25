@@ -432,14 +432,25 @@ function screenResult(beerId){
 
 /* ---------------- ADMIN / PRESENTER DASHBOARD ---------------- */
 
-function barRow(label, count, total, isBeer){
+function barRow(key, label, count, total, isBeer){
   const pct = total > 0 ? Math.round((count/total)*100) : 0;
   const widthPct = total > 0 ? Math.max(2, Math.round((count/total)*100)) : 2;
   return `
-    <div class="bar-row">
-      <div class="label-row"><span class="name">${label}</span><span>${count} · ${pct}%</span></div>
+    <div class="bar-row" data-row-key="${key}">
+      <div class="label-row"><span class="name">${label}</span><span class="count-label">${count} · ${pct}%</span></div>
       <div class="bar-track"><div class="bar-fill ${isBeer?'beer':''}" data-w="${widthPct}" style="width:0%"></div></div>
     </div>`;
+}
+
+function updateBarRow(key, count, total){
+  const row = document.querySelector(`.bar-row[data-row-key="${key}"]`);
+  if(!row) return;
+  const pct = total > 0 ? Math.round((count/total)*100) : 0;
+  const widthPct = total > 0 ? Math.max(2, Math.round((count/total)*100)) : 2;
+  const countLabel = row.querySelector(".count-label");
+  if(countLabel) countLabel.textContent = `${count} · ${pct}%`;
+  const fill = row.querySelector(".bar-fill");
+  if(fill) fill.style.width = widthPct + "%";
 }
 
 function animateBars(){
@@ -490,6 +501,31 @@ async function resetAll(){
   alert("El borrado de respuestas se hace directamente en la hoja de Google Sheets (borra las filas), no desde aquí.");
 }
 
+function renderLeadsTable(leads){
+  const wrap = document.getElementById("leadsTableWrap");
+  if(!wrap) return;
+  if(leads.length === 0){
+    wrap.innerHTML = '<span style="color:var(--text-300); font-size:13px;">Aún no hay respuestas.</span>';
+  } else {
+    const rows = leads.map(l => `<tr><td>${l.name||""}</td><td>${l.email||""}</td><td>${l.department||""}</td><td>${l.beer||""}</td></tr>`).join("");
+    wrap.innerHTML = `<table class="leads"><thead><tr><th>Nombre</th><th>Email</th><th>Área</th><th>Cerveza</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+}
+
+/* Lightweight refresh: updates numbers/bars/leads in place, no full repaint, no flicker. */
+async function refreshAdminData(){
+  const leads = await sheetGetLeads();
+  const counts = computeCountsFromLeads(leads);
+
+  const totalEl = document.getElementById("totalCount");
+  if(totalEl) totalEl.textContent = counts.total || 0;
+
+  Object.keys(BEERS).forEach(k => updateBarRow('beer-'+k, counts.byBeer[k]||0, counts.total||0));
+  DEPARTMENTS.forEach(d => updateBarRow('dept-'+d.id, counts.byDept[d.id]||0, counts.total||0));
+
+  renderLeadsTable(leads);
+}
+
 async function renderAdmin(){
   document.getElementById("app").className = "wrap admin";
   const leads = await sheetGetLeads();
@@ -497,13 +533,13 @@ async function renderAdmin(){
   const aiStatus = aiState.status;
   const aiAnalysis = aiState.analysis;
 
-  const beerBars = Object.keys(BEERS).map(k => barRow(BEERS[k].name, counts.byBeer[k]||0, counts.total||0, true)).join("");
-  const deptBars = DEPARTMENTS.map(d => barRow(d.label, counts.byDept[d.id]||0, counts.total||0, false)).join("");
+  const beerBars = Object.keys(BEERS).map(k => barRow('beer-'+k, BEERS[k].name, counts.byBeer[k]||0, counts.total||0, true)).join("");
+  const deptBars = DEPARTMENTS.map(d => barRow('dept-'+d.id, d.label, counts.byDept[d.id]||0, counts.total||0, false)).join("");
 
   render(`
     ${brandHeader("Panel Zebra · privado, no proyectar en pantalla salvo al cierre")}
     <h1>Dinámica de las cervezas — en directo</h1>
-    <p class="lead"><b>${counts.total||0}</b> personas han respondido esta noche.</p>
+    <p class="lead"><b id="totalCount">${counts.total||0}</b> personas han respondido esta noche.</p>
 
     <div class="grid2-admin">
       <div class="panel">
@@ -546,16 +582,7 @@ async function renderAdmin(){
     <p class="footer-note">El QR que va al público NO lleva "?admin=1". Esta pantalla es solo para el equipo de Zebra.</p>
   `);
   animateBars();
-
-  const wrap = document.getElementById("leadsTableWrap");
-  if(wrap){
-    if(leads.length === 0){
-      wrap.innerHTML = '<span style="color:var(--text-300); font-size:13px;">Aún no hay respuestas.</span>';
-    } else {
-      const rows = leads.map(l => `<tr><td>${l.name||""}</td><td>${l.email||""}</td><td>${l.department||""}</td><td>${l.beer||""}</td></tr>`).join("");
-      wrap.innerHTML = `<table class="leads"><thead><tr><th>Nombre</th><th>Email</th><th>Área</th><th>Cerveza</th></tr></thead><tbody>${rows}</tbody></table>`;
-    }
-  }
+  renderLeadsTable(leads);
 }
 
 /* ---------------- INIT ---------------- */
@@ -563,7 +590,7 @@ async function renderAdmin(){
 async function init(){
   if(isAdmin){
     await renderAdmin();
-    setInterval(renderAdmin, 4000);
+    setInterval(refreshAdminData, 4000);
   } else {
     screenIntro();
   }
