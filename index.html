@@ -157,6 +157,10 @@
     margin:6px 0 4px; animation:popIn .6s cubic-bezier(.34,1.56,.64,1) both; animation-delay:.15s;
   }
   .result-box .abv{color:var(--text-300); font-size:13px; margin-bottom:18px; animation:fadeUp .4s ease both; animation-delay:.4s;}
+  .result-box .pain-tag{
+    font-size:13px; font-style:italic; color:var(--brand-primary); opacity:0.9;
+    margin-bottom:10px; animation:fadeUp .4s ease both; animation-delay:.48s;
+  }
   .result-box .pairing{font-size:14.5px; line-height:1.55; color:var(--text-100); margin-bottom:6px; animation:fadeUp .4s ease both; animation-delay:.55s;}
 
   /* admin */
@@ -202,40 +206,64 @@ const BEERS = {
 
 const DEPARTMENTS = [
   { id:"operaciones", label:"Operaciones", pains:[
-      { id:"op1", text:"Procesos manuales sin trazabilidad", beer:"especial" },
-      { id:"op2", text:"Cuellos de botella difíciles de detectar en la cadena", beer:"export" },
-      { id:"op3", text:"Falta de flexibilidad para adaptar la operación a la demanda", beer:"tripleZero" },
-      { id:"op4", text:"Dependencia de una sola persona para tareas críticas", beer:"especial" }
+      { id:"op1", text:"Procesos manuales sin trazabilidad", beer:"especial",
+        resolution:"Vuestro proceso no está roto, solo necesita ejecutarse con la misma precisión cada vez — sin depender de la memoria de nadie." },
+      { id:"op2", text:"Cuellos de botella difíciles de detectar en la cadena", beer:"export",
+        resolution:"El cuello de botella no está donde parece a simple vista. Hace falta mirar más profundo para encontrar dónde se atasca de verdad." },
+      { id:"op3", text:"Falta de flexibilidad para adaptar la operación a la demanda", beer:"tripleZero",
+        resolution:"Esto no se arregla ajustando lo que ya tenéis: es una capacidad nueva que hay que construir desde cero." },
+      { id:"op4", text:"Dependencia de una sola persona para tareas críticas", beer:"especial",
+        resolution:"El objetivo es que el proceso funcione igual de bien lo ejecute quien lo ejecute — no que dependa de una persona." }
   ]},
   { id:"rrhh", label:"RRHH", pains:[
-      { id:"rr1", text:"Selección de personal lenta y a ojo", beer:"especial" },
-      { id:"rr2", text:"Rotación alta sin entender la causa raíz", beer:"export" },
-      { id:"rr3", text:"Falta de plan de carrera / desarrollo de talento", beer:"tripleZero" },
-      { id:"rr4", text:"Evaluaciones de desempeño subjetivas", beer:"export" }
+      { id:"rr1", text:"Selección de personal lenta y a ojo", beer:"especial",
+        resolution:"No hace falta reinventar cómo contratáis, solo estandarizar y perfeccionar un proceso que ya conocéis." },
+      { id:"rr2", text:"Rotación alta sin entender la causa raíz", beer:"export",
+        resolution:"Que la gente se vaya es el síntoma visible. La causa real está varias capas por debajo, y hay que ir a buscarla." },
+      { id:"rr3", text:"Falta de plan de carrera / desarrollo de talento", beer:"tripleZero",
+        resolution:"Esta estructura no existe todavía en vuestra empresa. No se perfecciona: se crea desde cero." },
+      { id:"rr4", text:"Evaluaciones de desempeño subjetivas", beer:"export",
+        resolution:"Falta profundidad de criterio detrás del juicio. Se necesita más cuerpo analítico, no más intuición." }
   ]},
   { id:"calidad", label:"Calidad", pains:[
-      { id:"ca1", text:"Incidencias detectadas tarde, sin trazabilidad", beer:"especial" },
-      { id:"ca2", text:"Falta de análisis de causa raíz de no conformidades", beer:"export" },
-      { id:"ca3", text:"Ausencia de control predictivo/preventivo de calidad", beer:"tripleZero" },
-      { id:"ca4", text:"Auditorías internas manuales y poco frecuentes", beer:"especial" }
+      { id:"ca1", text:"Incidencias detectadas tarde, sin trazabilidad", beer:"especial",
+        resolution:"Es un fallo de disciplina de proceso, no de estrategia. Se arregla estandarizando, como una receta bien ejecutada." },
+      { id:"ca2", text:"Falta de análisis de causa raíz de no conformidades", beer:"export",
+        resolution:"El fallo que veis no es el problema real. Hace falta profundizar el análisis para llegar a la causa." },
+      { id:"ca3", text:"Ausencia de control predictivo/preventivo de calidad", beer:"tripleZero",
+        resolution:"Pasar de reaccionar a fallos a anticiparlos no es una mejora incremental: es un salto de categoría." },
+      { id:"ca4", text:"Auditorías internas manuales y poco frecuentes", beer:"especial",
+        resolution:"Un proceso que ya conocéis y que solo necesita sistematizarse, no rediseñarse desde cero." }
   ]},
   { id:"financiero", label:"Financiero", pains:[
-      { id:"fi1", text:"Cierres contables manuales y lentos", beer:"especial" },
-      { id:"fi2", text:"Falta de visibilidad de márgenes reales por producto/cliente", beer:"export" },
-      { id:"fi3", text:"Ausencia de modelos predictivos de tesorería", beer:"tripleZero" },
-      { id:"fi4", text:"Facturación con errores recurrentes", beer:"especial" }
+      { id:"fi1", text:"Cierres contables manuales y lentos", beer:"especial",
+        resolution:"Una tarea recurrente y bien conocida. Se arregla perfeccionando el proceso base, no creando algo nuevo." },
+      { id:"fi2", text:"Falta de visibilidad de márgenes reales por producto/cliente", beer:"export",
+        resolution:"Los números superficiales ocultan lo que pasa por debajo. Hace falta desagregar y mirar más profundo." },
+      { id:"fi3", text:"Ausencia de modelos predictivos de tesorería", beer:"tripleZero",
+        resolution:"Predecir no es mejorar lo que ya hacíais mirando el pasado. Es una capacidad nueva y distinta." },
+      { id:"fi4", text:"Facturación con errores recurrentes", beer:"especial",
+        resolution:"Un error de ejecución en un proceso ya definido, no un problema de estrategia." }
   ]},
   { id:"comercial", label:"Comercial", pains:[
-      { id:"co1", text:"CRM desactualizado, datos dispersos", beer:"especial" },
-      { id:"co2", text:"Falta de segmentación real de clientes", beer:"export" },
-      { id:"co3", text:"Pipeline sin scoring predictivo de oportunidades", beer:"tripleZero" },
-      { id:"co4", text:"Dependencia de comerciales \u201cestrella\u201d sin proceso replicable", beer:"especial" }
+      { id:"co1", text:"CRM desactualizado, datos dispersos", beer:"especial",
+        resolution:"La herramienta y el proceso ya existen. Solo hace falta disciplina y mantenimiento, no reinventarlo." },
+      { id:"co2", text:"Falta de segmentación real de clientes", beer:"export",
+        resolution:"Tratar a todos los clientes igual es quedarse en la superficie. Segmentar de verdad exige mirar más profundo." },
+      { id:"co3", text:"Pipeline sin scoring predictivo de oportunidades", beer:"tripleZero",
+        resolution:"No es optimizar el CRM que ya tenéis. Es incorporar una capacidad de predicción que hoy no existe." },
+      { id:"co4", text:"Dependencia de comerciales \u201cestrella\u201d sin proceso replicable", beer:"especial",
+        resolution:"Falta la consistencia de un método que funcione igual de bien lo ejecute quien lo ejecute." }
   ]},
   { id:"administracion", label:"Administración", pains:[
-      { id:"ad1", text:"Gestión documental en papel o carpetas dispersas", beer:"especial" },
-      { id:"ad2", text:"Falta de cuadro de mando con indicadores cruzados", beer:"export" },
-      { id:"ad3", text:"Procesos administrativos sin ninguna automatización", beer:"tripleZero" },
-      { id:"ad4", text:"Archivo y control de contratos manual, propenso a errores", beer:"especial" }
+      { id:"ad1", text:"Gestión documental en papel o carpetas dispersas", beer:"especial",
+        resolution:"Una tarea básica del día a día. Se arregla ordenando lo de siempre, no incorporando algo radicalmente nuevo." },
+      { id:"ad2", text:"Falta de cuadro de mando con indicadores cruzados", beer:"export",
+        resolution:"Los datos ya existen, pero dispersos. El valor está en cruzarlos, no en mirarlos uno a uno." },
+      { id:"ad3", text:"Procesos administrativos sin ninguna automatización", beer:"tripleZero",
+        resolution:"No hay nada que perfeccionar porque la automatización no existe todavía. Hay que construir la capacidad desde el principio." },
+      { id:"ad4", text:"Archivo y control de contratos manual, propenso a errores", beer:"especial",
+        resolution:"Ejecución imprecisa de un proceso que ya conocéis bien — no falta de estrategia." }
   ]}
 ];
 
@@ -412,10 +440,10 @@ async function finishQuiz(){
     department: dept.label, pain: pain.text, beer: BEERS[beerId].name
   });
 
-  screenResult(beerId);
+  screenResult(beerId, pain);
 }
 
-function screenResult(beerId){
+function screenResult(beerId, pain){
   const beer = BEERS[beerId];
   render(`
     ${brandHeader("FuckUp Nights Zaragoza · Vol. X")}
@@ -424,7 +452,8 @@ function screenResult(beerId){
       <img class="beer-photo" src="${beer.image}" alt="${beer.name}">
       <div class="beer-name">${beer.name}</div>
       <div class="abv">${beer.abv}</div>
-      <div class="pairing">${beer.pairing}</div>
+      <div class="pain-tag">"${pain.text}"</div>
+      <div class="pairing">${pain.resolution}</div>
     </div>
     <button class="ghost" onclick="location.href=location.pathname">Volver a empezar</button>
   `);
